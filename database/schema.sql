@@ -2,7 +2,7 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     date_of_birth DATE
 );
 
@@ -29,13 +29,13 @@ CREATE TABLE bodyweight_entries (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id),
     bodyweight NUMERIC(4,1) NOT NULL,
-    recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE workout_sessions (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id),
-    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ended_at TIMESTAMP
         CHECK (ended_at >= started_at)
 );
@@ -44,13 +44,14 @@ CREATE TABLE session_exercises (
     id SERIAL PRIMARY KEY,
     session_id INTEGER NOT NULL REFERENCES workout_sessions(id),
     exercise_id INTEGER NOT NULL REFERENCES exercises(id),
-    exercise_order INTEGER NOT NULL
+    exercise_order INTEGER NOT NULL CHECK (exercise_order > 0),
+    UNIQUE(session_id, exercise_order)
 );
 
 CREATE TABLE sets (
     id SERIAL PRIMARY KEY,
     session_exercise_id INTEGER NOT NULL REFERENCES session_exercises(id),
-    set_order INTEGER NOT NULL,
+    set_order INTEGER NOT NULL CHECK (set_order > 0),
     weight NUMERIC(4,1) NOT NULL CHECK (weight > 0),
     reps INTEGER NOT NULL CHECK (reps > 0),
     rir INTEGER CHECK (rir BETWEEN 0 AND 10),
