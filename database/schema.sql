@@ -44,7 +44,8 @@ CREATE TABLE session_exercises (
     id SERIAL PRIMARY KEY,
     session_id INTEGER NOT NULL REFERENCES workout_sessions(id),
     exercise_id INTEGER NOT NULL REFERENCES exercises(id),
-    exercise_order INTEGER NOT NULL CHECK (exercise_order > 0),
+    exercise_order INTEGER NOT NULL
+        CHECK (exercise_order > 0),
     UNIQUE(session_id, exercise_order)
 );
 
@@ -53,7 +54,18 @@ CREATE TABLE sets (
     session_exercise_id INTEGER NOT NULL REFERENCES session_exercises(id),
     set_order INTEGER NOT NULL CHECK (set_order > 0),
     weight NUMERIC(4,1) NOT NULL CHECK (weight > 0),
-    reps INTEGER NOT NULL CHECK (reps > 0),
-    rir INTEGER CHECK (rir BETWEEN 0 AND 10),
+    reps INTEGER NOT NULL
+        CHECK (reps > 0),
+    rir INTEGER
+        CHECK (rir BETWEEN 0 AND 10),
     UNIQUE(session_exercise_id, set_order)
+);
+
+CREATE TABLE exercise_muscle_mapping (
+    id SERIAL PRIMARY KEY,
+    exercise_id INTEGER NOT NULL REFERENCES exercises(id),
+    muscle_id INTEGER NOT NULL REFERENCES muscles(id),
+    activation NUMERIC(3,2) NOT NULL 
+        CHECK (activation BETWEEN 0.0 AND 1.0),
+    UNIQUE (exercise_id, muscle_id)
 );
