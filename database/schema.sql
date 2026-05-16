@@ -21,6 +21,20 @@ CREATE TABLE muscles (
 
 CREATE TABLE exercise_aliases (
     id SERIAL PRIMARY KEY,
-    exercise_id FOREIGN KEY,
+    exercise_id INTEGER REFERENCES exercises(id),
     alias_name TEXT UNIQUE NOT NULL
-)
+);
+
+CREATE TABLE bodyweight_entries (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    user_weight NUMERIC(4,1) NOT NULL,
+    recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE sessions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ended_at TIMESTAMP
+);
