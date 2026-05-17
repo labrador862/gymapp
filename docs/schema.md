@@ -1,0 +1,1 @@
+Some notes on design decisions for the database schema.
