@@ -13,3 +13,13 @@ conn = psycopg2.connect(
 )
 
 cursor = conn.cursor()
+
+def get_all_users():
+    cursor.execute("""
+        SELECT id, username, email, date_of_birth
+        FROM users;
+    """)
+    
+    users = cursor.fetchall()
+    
+    return users
