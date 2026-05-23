@@ -23,3 +23,16 @@ def get_all_users():
     users = cursor.fetchall()
     
     return users
+
+def create_workout_session(user_id):
+    cursor.execute("""
+        INSERT INTO workout_sessions (user_id)
+        VALUES (%s)
+        RETURNING id;
+    """, (user_id,))
+    
+    session_id = cursor.fetchone()[0]
+    
+    conn.commit()
+    
+    return session_id
