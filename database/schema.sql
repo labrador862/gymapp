@@ -35,6 +35,7 @@ CREATE TABLE bodyweight_entries (
 CREATE TABLE workout_sessions (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id),
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
     started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ended_at TIMESTAMP
         CHECK (ended_at >= started_at)
