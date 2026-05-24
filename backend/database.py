@@ -44,6 +44,35 @@ def create_workout_session(user_id):
     
     return session_id
 
+# end a currently active session
+def end_workout_session(session_id):
+    cursor.execute("""
+        UPDATE workout_sessions
+        SET is_active = FALSE
+        WHERE id = %s
+            AND is_active = TRUE
+        RETURNING id;
+    """, (session_id,))
+    
+    ended_session = cursor.fetchone()
+    
+    conn.commit()
+    
+    return ended_session
+
+# identify current session
+def get_active_session(session_id):
+    cursor.execute("""
+        SELECT id
+        FROM workout_sessions
+        WHERE user_id = %s
+            AND is_active = TRUE;
+    """, (session_id,))
+    
+    active_session = cursor.fetchone()
+    
+    return active_session
+
 # display information for a specific session
 def get_session(session_id):
     cursor.execute("""
@@ -112,7 +141,7 @@ def add_exercise_to_session(session_id, exercise_id, exercise_order):
 def get_session_exercises(session_id):
     cursor.execute("""
         SELECT id, exercise_id, exercise_order
-        FROM get_session_exercises
+        FROM session_exercises
         WHERE session_id = %s
         ORDER BY exercise_order;
     """, (session_id,))
@@ -160,7 +189,7 @@ def add_set(session_exercise_id, reps, weight, rir):
 # how did i perform for all sets of this exercise?
 def get_sets(session_exercise_id):
     cursor.execute("""
-        SELECT id, set_order, weight, reps, rir
+        SELECT id, set_order, weight, reps, rir, performed_at
         FROM sets
         WHERE session_exercise_id = %s
         ORDER BY set_order;

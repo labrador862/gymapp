@@ -1,5 +1,10 @@
 Some notes for future implementation.
 
+--- Frontend ---
+
+Begin logging a new session - Likely will have a button at the bottom or middle of the screen that says "Start new session" or something similar. 
+
+
 --- Premium Features ---
 
 My assumption is that the free tier users want a frictionless, easy experience for them to log exercises, view their progress in graphs and charts, and receive basic analysis from simple computations, whereas premium users are more likely to be the intermediate/advanced lifter who cares much more about nailing every detail and receiving more elaborate and derived analysis and will be more strict about accurate data logging. 
