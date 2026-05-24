@@ -21,3 +21,13 @@ def start_session(user_id: int):
         "message": "Workout session created!",
         "session_id": session_id
     }
+    
+# get specific session data
+@app.get("/sessions/{session_id}")
+def session(session_id: int): 
+    session_data = database.get_session(session_id)
+    
+    return {
+        "session": session_data
+    }
+    

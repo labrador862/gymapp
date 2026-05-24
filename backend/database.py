@@ -15,6 +15,8 @@ conn = psycopg2.connect(
 cursor = conn.cursor()
 
 # USERS
+
+# who uses my app?
 def get_all_users():
     cursor.execute("""
         SELECT id, username, email, date_of_birth
@@ -27,6 +29,8 @@ def get_all_users():
 
 
 # SESSIONS
+
+# instantiate a workout session
 def create_workout_session(user_id):
     cursor.execute("""
         INSERT INTO workout_sessions (user_id)
@@ -40,6 +44,52 @@ def create_workout_session(user_id):
     
     return session_id
 
+# display information for a specific session
+def get_session(session_id):
+    cursor.execute("""
+        SELECT id, user_id, started_at
+        FROM workout_sessions
+        WHERE id = %s;
+    """, (session_id,))
+    
+    session = cursor.fetchone()
+    
+    return session
+
+# how did i perform in today's session?
+def get_full_session(session_id):
+    cursor.execute("""
+        SELECT ws.id, e.canonical_name, s.set_order, s.weight, s.reps, s.rir, ws.started_at, ws.ended_at
+        FROM workout_sessions ws
+        JOIN session_exercises se
+            ON ws.id = se.session_id
+        JOIN exercises e
+            ON se.exercise_id = e.id
+        JOIN sets s
+            ON se.id = s.session_exercise_id
+        WHERE ws.id = %s
+        ORDER BY se.exercise_order, s.set_order;
+    """, (session_id,))
+    
+    session_details = cursor.fetchall()
+    
+    return session_details
+
+# how can i see previous sessions?
+def get_user_sessions(user_id):
+    cursor.execute("""
+        SELECT id, started_at, ended_at, 
+            ended_at - started_at AS duration
+        FROM workout_sessions
+        WHERE user_id = %s
+        ORDER BY started_at DESC;
+    """, (user_id,))
+    
+    sessions = cursor.fetchall()
+    
+    return sessions
+
+# add an exercise to my current session
 def add_exercise_to_session(session_id, exercise_id, exercise_order):
     cursor.execute("""
         INSERT INTO session_exercises (session_id, exercise_id, exercise_order)
@@ -58,14 +108,29 @@ def add_exercise_to_session(session_id, exercise_id, exercise_order):
     
     return session_exercise_id
 
+# what exercises did i perform during this session?
+def get_session_exercises(session_id):
+    cursor.execute("""
+        SELECT id, exercise_id, exercise_order
+        FROM get_session_exercises
+        WHERE session_id = %s
+        ORDER BY exercise_order;
+    """, (session_id,))
+    
+    exercises = cursor.fetchall()
+    
+    return exercises
+
 # SETS
+
+# add a set of this exercise to my session
 def add_set(session_exercise_id, reps, weight, rir):
     
     cursor.execute("""
         SELECT MAX(set_order)
         FROM sets
         WHERE session_exercise_id = %s;
-    """, (session_exercise_id))
+    """, (session_exercise_id,))
     current_max = cursor.fetchone()[0]
     
     # edge case: if this is the first set fetchone() will return None
@@ -91,3 +156,34 @@ def add_set(session_exercise_id, reps, weight, rir):
     conn.commit()
     
     return set_id
+
+# how did i perform for all sets of this exercise?
+def get_sets(session_exercise_id):
+    cursor.execute("""
+        SELECT id, set_order, weight, reps, rir
+        FROM sets
+        WHERE session_exercise_id = %s
+        ORDER BY set_order;
+    """, (session_exercise_id,))
+    
+    sets = cursor.fetchall()
+    
+    return sets
+
+# EXERCISES
+
+# what is the canonical name for this exercise id?
+def get_exercise_name(exercise_id):
+    cursor.execute("""
+        SELECT canonical_name
+        FROM exercises
+        WHERE id = %s;        
+    """, (exercise_id,))
+    
+    exercise_name = cursor.fetchone()[0]
+    
+    return exercise_name
+
+#TODO
+def infer_session_label(session_id):
+    # ex: if chest/triceps recruitment makes up 70% or more of session = push day
