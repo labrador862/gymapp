@@ -1,0 +1,7 @@
+Some notes for future implementation.
+
+--- Premium Features ---
+
+My assumption is that the free tier users want a frictionless, easy experience for them to log exercises, view their progress in graphs and charts, and receive basic analysis from simple computations, whereas premium users are more likely to be the intermediate/advanced lifter who cares much more about nailing every detail and receiving more elaborate and derived analysis and will be more strict about accurate data logging. 
+
+Rest time analysis - An issue with utilizing performed_at data for each set is data accuracy. If each logged set automatically assumes it was just performed, users who chooose to batch sets for an entire exercise or session would receive inaccurate analysis on their rest times per set since all sets will show they were performed at the same time. To handle this, rest time analysis should be a premium feature, where it is assumed/will be directly stated to premium users that for the most accurate results they should log each set upon completion in real time. Perhaps this can be a toggleable setting for those who really prefer batch logging, and they can just manually input the performed_at time themselves (though they will likely be incorrect and result in faulty analysis).
