@@ -58,6 +58,7 @@ CREATE TABLE sets (
         CHECK (reps > 0),
     rir INTEGER
         CHECK (rir BETWEEN 0 AND 10),
+    performed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(session_exercise_id, set_order)
 );
 
