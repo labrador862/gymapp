@@ -9,6 +9,10 @@ class AddSetRequest(BaseModel):
     reps: int
     weight: float
     rir: int
+    
+class AddExerciseRequest(BaseModel):
+    exercise_id: int
+    exercise_order: int
 
 # get all users
 @app.get("/users")
@@ -25,7 +29,18 @@ def start_session(user_id: int):
         "session_id": session_id
     }
     
-# get specific session data
+# end current session
+@app.patch("/sessions/{session_id}/end")
+def end_workout_session(session_id: int):
+    ended_session = database.end_workout_session(session_id)
+    if ended_session is None:
+        raise HTTPException(status_code=404, detail="Session not found or already ended")
+    return {
+        "message": "Workout session successfully ended.",
+        "ended_session": ended_session
+    }
+    
+# get specific session data (session id, user id, started_at)
 @app.get("/sessions/{session_id}")
 def session(session_id: int): 
     session_data = database.get_session(session_id)
@@ -33,6 +48,34 @@ def session(session_id: int):
         raise HTTPException(status_code=404, detail="Session not found")
     return {"session": session_data}
 
+# get a list of a user's session history
+@app.get("/users/{user_id}/sessions")
+def get_user_sessions(user_id: int):
+    history = database.get_user_sessions(user_id)
+    if history is None:
+        raise HTTPException(status_code=404, detail="User does not exist")
+    return {"history": history}
+
+# add exercise to a session
+@app.post("/sessions/{session_id}/exercises")
+def add_exercise(session_id: int, request: AddExerciseRequest):
+    # ensure session exists
+    session = database.get_session(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    session_exercise_id = database.add_exercise_to_session(
+        session_id, 
+        request.exercise_id, 
+        request.exercise_order
+    )
+    
+    return {
+        "message": "Exercise added to session!",
+        "session_exercise_id": session_exercise_id
+    }
+
+# add a set to a session
 @app.post("/sessions/{session_id}/exercises/{session_exercise_id}/sets")
 def add_set(session_id: int, session_exercise_id: int, request: AddSetRequest):
     # ensure session exists
@@ -53,6 +96,7 @@ def add_set(session_id: int, session_exercise_id: int, request: AddSetRequest):
         request.rir
     )
     
+    # row of new set added
     return {
         "message": "Set added!",
         "set_id": set_id
