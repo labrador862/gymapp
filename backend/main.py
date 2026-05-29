@@ -11,11 +11,14 @@ def users():
     users = database.get_all_users()
     
     return {"users": users}
-    
+
+class StartSessionRequest(BaseModel):
+    user_id: int
+
 # start new session
 @app.post("/sessions")
-def start_session(user_id: int):
-    session_id = database.create_workout_session(user_id)
+def start_session(request: StartSessionRequest):
+    session_id = database.create_workout_session(request.user_id)
     
     return {
         "message": "Workout session created!",
