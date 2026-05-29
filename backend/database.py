@@ -61,13 +61,13 @@ def end_workout_session(session_id):
     return ended_session
 
 # identify current session
-def get_active_session(session_id):
+def get_active_session(user_id):
     cursor.execute("""
         SELECT id
         FROM workout_sessions
         WHERE user_id = %s
             AND is_active = TRUE;
-    """, (session_id,))
+    """, (user_id,))
     
     active_session = cursor.fetchone()
     
