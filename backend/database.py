@@ -238,5 +238,7 @@ def get_exercise_name(exercise_id):
     return exercise_name
 
 #TODO
+# what kind of workout did the user perform?
 def infer_session_label(session_id):
     # ex: if chest/triceps recruitment makes up 70% or more of session = push day
+    return 1

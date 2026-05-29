@@ -19,6 +19,43 @@ def users():
     users = database.get_all_users()
     return {"users": users}
 
+# get full session details
+@app.get("/sessions/{session_id}/details")
+def get_full_session(session_id: int):
+    session = database.get_session(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    details = database.get_full_session(session_id)
+
+    return {"session_details": details}
+
+# get list of session exercises
+@app.get("/sessions/{session_id}/exercises")
+def get_session_exercises(session_id: int):
+    session = database.get_session(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    exercises = database.get_session_exercises(session_id)
+
+    return {"exercises": exercises}
+
+# get list of sets for an exercise in a specific session
+@app.get("/sessions/{session_id}/exercises/{session_exercise_id}/sets")
+def get_sets(session_id: int, session_exercise_id: int):
+    # ensure session exists
+    session = database.get_session(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    # ensure excerise is in this session
+    session_exercise = database.get_session_exercise(session_id, session_exercise_id)
+    if session_exercise is None:
+        raise HTTPException(status_code=404, detail="Exercise not found in this session")
+
+    sets = database.get_sets(session_exercise_id)
+
+    return {"sets": sets}
+
 # start new session
 @app.post("/sessions")
 def start_session(user_id: int):
@@ -73,10 +110,11 @@ def add_exercise(session_id: int, request: AddExerciseRequest):
         "session_exercise_id": session_exercise_id
     }
 
+#TODO
 # change order of exercises performed
 @app.patch("/sessions/{session_id}/reorder")
 def reorder_exercises(session_id: int):
-    #TODO
+    return 1
 
 # add a set to a session
 @app.post("/sessions/{session_id}/exercises/{session_exercise_id}/sets")
