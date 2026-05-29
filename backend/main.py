@@ -73,6 +73,11 @@ def add_exercise(session_id: int, request: AddExerciseRequest):
         "session_exercise_id": session_exercise_id
     }
 
+# change order of exercises performed
+@app.patch("/sessions/{session_id}/reorder")
+def reorder_exercises(session_id: int):
+    #TODO
+
 # add a set to a session
 @app.post("/sessions/{session_id}/exercises/{session_exercise_id}/sets")
 def add_set(session_id: int, session_exercise_id: int, request: AddSetRequest):
