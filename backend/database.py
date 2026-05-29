@@ -1,5 +1,6 @@
 import os
 import psycopg2
+from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,7 +12,7 @@ conn = psycopg2.connect(
     password=os.getenv("DB_PASSWORD")
 )
 
-cursor = conn.cursor()
+cursor = conn.cursor(cursor_factory=RealDictCursor)
 
 # USERS
 
