@@ -12,7 +12,6 @@ class AddSetRequest(BaseModel):
     
 class AddExerciseRequest(BaseModel):
     exercise_id: int
-    exercise_order: int
 
 # get all users
 @app.get("/users")
@@ -66,8 +65,7 @@ def add_exercise(session_id: int, request: AddExerciseRequest):
     
     session_exercise_id = database.add_exercise_to_session(
         session_id, 
-        request.exercise_id, 
-        request.exercise_order
+        request.exercise_id
     )
     
     return {

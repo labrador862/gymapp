@@ -118,22 +118,34 @@ def get_user_sessions(user_id):
     return sessions
 
 # add an exercise to my current session
-def add_exercise_to_session(session_id, exercise_id, exercise_order):
+def add_exercise_to_session(session_id, exercise_id):
     cursor.execute("""
-        INSERT INTO session_exercises (session_id, exercise_id, exercise_order)
-        VALUES (%s, %s, %s)
-        RETURNING id;
-        """, (
+        SELECT MAX(exercise_order)
+        FROM session_exercises
+        WHERE session_id = %s;
+    """, (session_id,))
+    current_max = cursor.fetchone()[0]
+
+    # edge case: first exercise performed
+    if current_max is None:
+        next_order = 1
+    else:
+        next_order = current_max + 1
+
+    cursor.execute("""
+        INSERT INTO session_exercises (
             session_id,
             exercise_id,
             exercise_order
         )
-    )
-    
+        VALUES (%s, %s, %s)
+        RETURNING id;
+    """, (session_id, exercise_id, next_order))
+
     session_exercise_id = cursor.fetchone()[0]
-    
+
     conn.commit()
-    
+
     return session_exercise_id
 
 # what exercises did i perform during this session?
