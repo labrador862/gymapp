@@ -149,6 +149,19 @@ def get_session_exercises(session_id):
     
     return exercises
 
+# is a given exercise in this session?
+def get_session_exercise(session_id, session_exercise_id):
+    cursor.execute("""
+        SELECT id
+        FROM session_exercises
+        WHERE id = %s
+            AND session_id = %s;
+    """, (session_exercise_id, session_id))
+    
+    exercise = cursor.fetchone()
+
+    return exercise
+
 # SETS
 
 # add a set of this exercise to my session
