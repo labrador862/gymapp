@@ -38,7 +38,7 @@ def create_workout_session(user_id):
         RETURNING id;
     """, (user_id,))
     
-    session_id = cursor.fetchone()[0]
+    session_id = cursor.fetchone()["id"]
     
     conn.commit()
     
@@ -121,11 +121,11 @@ def get_user_sessions(user_id):
 # add an exercise to my current session
 def add_exercise_to_session(session_id, exercise_id):
     cursor.execute("""
-        SELECT MAX(exercise_order)
+        SELECT MAX(exercise_order) AS max_order
         FROM session_exercises
         WHERE session_id = %s;
     """, (session_id,))
-    current_max = cursor.fetchone()[0]
+    current_max = cursor.fetchone()["max_order"]
 
     # edge case: first exercise performed
     if current_max is None:
@@ -143,7 +143,7 @@ def add_exercise_to_session(session_id, exercise_id):
         RETURNING id;
     """, (session_id, exercise_id, next_order))
 
-    session_exercise_id = cursor.fetchone()[0]
+    session_exercise_id = cursor.fetchone()["id"]
 
     conn.commit()
 
@@ -181,11 +181,11 @@ def get_session_exercise(session_id, session_exercise_id):
 def add_set(session_exercise_id, reps, weight, rir):
     
     cursor.execute("""
-        SELECT MAX(set_order)
+        SELECT MAX(set_order) AS max_order
         FROM sets
         WHERE session_exercise_id = %s;
     """, (session_exercise_id,))
-    current_max = cursor.fetchone()[0]
+    current_max = cursor.fetchone()["max_order"]
     
     # edge case: if this is the first set fetchone() will return None
     if current_max is None:
@@ -205,7 +205,7 @@ def add_set(session_exercise_id, reps, weight, rir):
         RETURNING id;
     """, (session_exercise_id, next_set_order, reps, weight, rir))
     
-    set_id = cursor.fetchone()[0]
+    set_id = cursor.fetchone()["id"]
     
     conn.commit()
     
@@ -234,7 +234,7 @@ def get_exercise_name(exercise_id):
         WHERE id = %s;        
     """, (exercise_id,))
     
-    exercise_name = cursor.fetchone()[0]
+    exercise_name = cursor.fetchone()["canonical_name"]
     
     return exercise_name
 
