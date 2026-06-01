@@ -12,6 +12,9 @@ class AddSetRequest(BaseModel):
     
 class AddExerciseRequest(BaseModel):
     exercise_id: int
+    
+class UpdateSessionExerciseRequest(BaseModel):
+    exercise_id: int
 
 # get all users
 @app.get("/users")
@@ -76,13 +79,21 @@ def end_workout_session(session_id: int):
         "ended_session": ended_session
     }
     
-# get specific session data (session id, user id, started_at)
+# get any one specific session data (session id, user id, started_at)
 @app.get("/sessions/{session_id}")
 def session(session_id: int): 
     session_data = database.get_session(session_id)
     if session_data is None:
         raise HTTPException(status_code=404, detail="Session not found")
     return {"session": session_data}
+
+# get active session data
+@app.get("/users/{user_id}/active-session")
+def get_active_session(user_id: int):
+    active_session = database.get_active_session(user_id)
+    if active_session is None:
+        raise HTTPException(status_code=404, detail="User does not have active session")
+    return {"active_session": active_session}
 
 # get a list of a user's session history
 @app.get("/users/{user_id}/sessions")
@@ -139,4 +150,26 @@ def add_set(session_id: int, session_exercise_id: int, request: AddSetRequest):
     return {
         "message": "Set added!",
         "set_id": set_id
+    }
+
+# change exercise performed
+@app.patch("/sessions/{session_id}/exercises/{session_exercise_id}")
+def update_session_exercise(session_id: int, session_exercise_id: int, request: UpdateSessionExerciseRequest):
+    # confirm session exists
+    session = database.get_session(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    # confirm this exercise belongs to this session
+    session_exercise = database.get_session_exercise(session_id, session_exercise_id)
+    if session_exercise is None:
+        raise HTTPException(status_code=404, detail="Exercise not found in this session")
+
+    updated = database.update_session_exercise(session_exercise_id, request.exercise_id)
+    if updated is None:
+        raise HTTPException(status_code=404, detail="Exercise not found")
+
+    return {
+        "message": "Exercise updated!",
+        "updated_exercise": updated
     }

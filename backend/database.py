@@ -175,6 +175,20 @@ def get_session_exercise(session_id, session_exercise_id):
 
     return exercise
 
+# user selected wrong exercise, allow them to change it
+def update_session_exercise(exercise_id, session_exercise_id):
+    cursor.execute("""
+        UPDATE session_exercises
+        SET exercise_id = %s
+        WHERE id = %s
+        RETURNING id, session_id, exercise_id, exercise_order;
+    """, (exercise_id, session_exercise_id))
+    
+    updated = cursor.fetchone()
+    conn.commit()
+    
+    return updated
+
 # SETS
 
 # add a set of this exercise to my session
