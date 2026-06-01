@@ -238,6 +238,35 @@ def get_sets(session_exercise_id):
     
     return sets
 
+# is a given set in this session?
+def get_set(set_id, session_exercise_id):
+    cursor.execute("""
+        SELECT id
+        FROM sets
+        WHERE id = %s
+            AND session_exercise_id = %s;
+    """, (set_id, session_exercise_id))
+    
+    set = cursor.fetchone()
+
+    return set
+
+# user entered incorrect data for a set, allow them to change it
+def update_set(set_id, reps, weight, rir):
+    cursor.execute("""
+        UPDATE sets
+        SET reps = %s,
+            weight = %s,
+            rir = %s
+        WHERE id = %s
+        RETURNING id, set_order, reps, weight, rir, performed_at;
+    """, (reps, weight, rir, set_id))
+    
+    updated = cursor.fetchone()
+    conn.commit()
+    
+    return updated
+
 # EXERCISES
 
 # what is the canonical name for this exercise id?

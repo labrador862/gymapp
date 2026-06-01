@@ -9,6 +9,11 @@ class AddSetRequest(BaseModel):
     reps: int
     weight: float
     rir: int
+
+class UpdateSetRequest(BaseModel):
+    reps: int
+    weight: float
+    rir: int
     
 class AddExerciseRequest(BaseModel):
     exercise_id: int
@@ -172,4 +177,32 @@ def update_session_exercise(session_id: int, session_exercise_id: int, request: 
     return {
         "message": "Exercise updated!",
         "updated_exercise": updated
+    }
+    
+# edit set data
+@app.patch("/sessions/{session_id}/exercises/{session_exercise_id}/sets/{set_id}")
+def update_set(session_id: int, session_exercise_id: int, set_id: int, request: UpdateSetRequest):
+    # confirm session exists
+    session = database.get_session(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    # confirm this exercise belongs to this session
+    session_exercise = database.get_session_exercise(session_id, session_exercise_id)
+    if session_exercise is None:
+        raise HTTPException(status_code=404, detail="Exercise not found in this session")
+    
+    # confirm set belongs to this session exercise
+    set = database.get_set(set_id, session_exercise_id)
+    if set is None:
+        raise HTTPException(status_code=404, detail="Set not found for this exercise")
+    
+    # finally, update set
+    updated = database.update_set(set_id, request.reps, request.weight, request.rir)
+    if updated is None:
+        raise HTTPException(status_code=404, detail="Set not found")
+    
+    return {
+        "message": "Set updated!",
+        "updated_set": updated
     }
