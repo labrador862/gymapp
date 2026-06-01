@@ -267,6 +267,19 @@ def update_set(set_id, reps, weight, rir):
     
     return updated
 
+# remove an entire set from a session exercise
+def delete_set(set_id):
+    cursor.execute("""
+        DELETE FROM sets
+        WHERE id = %s
+        RETURNING id;
+    """, (set_id,))
+    
+    deleted = cursor.fetchone()
+    conn.commit()
+    
+    return deleted
+
 # EXERCISES
 
 # what is the canonical name for this exercise id?
