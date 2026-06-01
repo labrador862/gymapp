@@ -88,8 +88,6 @@ def session(session_id: int):
 @app.get("/users/{user_id}/sessions")
 def get_user_sessions(user_id: int):
     history = database.get_user_sessions(user_id)
-    if history is None:
-        raise HTTPException(status_code=404, detail="User does not exist")
     return {"history": history}
 
 # add exercise to a session
