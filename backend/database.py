@@ -189,6 +189,19 @@ def update_session_exercise(exercise_id, session_exercise_id):
     
     return updated
 
+# remove an exercise and all its sets from a session
+def delete_session_exercise(session_exercise_id):
+    cursor.execute("""
+        DELETE FROM session_exercises
+        WHERE id = %s
+        RETURNING id, session_id, exercise_id, exercise_order;
+    """, (session_exercise_id,))
+
+    deleted = cursor.fetchone()
+    conn.commit()
+
+    return deleted
+
 # SETS
 
 # add a set of this exercise to my session

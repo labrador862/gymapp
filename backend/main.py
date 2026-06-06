@@ -206,3 +206,42 @@ def update_set(session_id: int, session_exercise_id: int, set_id: int, request: 
         "message": "Set updated!",
         "updated_set": updated
     }
+    
+# delete a set
+@app.delete("/sessions/{session_id}/exercises/{session_exercise_id}/sets/{set_id}")
+def delete_set(session_id: int, session_exercise_id: int, set_id: int):
+    session = database.get_session(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    session_exercise = database.get_session_exercise(session_id, session_exercise_id)
+    if session_exercise is None:
+        raise HTTPException(status_code=404, detail="Exercise not found in this session")
+
+    set = database.get_set(set_id, session_exercise_id)
+    if set is None:
+        raise HTTPException(status_code=404, detail="Set not found for this exercise")
+
+    deleted = database.delete_set(set_id)
+    return {
+        "message": "Set deleted.", 
+        "deleted_set": deleted
+    }
+
+
+# remove an exercise (and all its sets) from a session
+@app.delete("/sessions/{session_id}/exercises/{session_exercise_id}")
+def delete_session_exercise(session_id: int, session_exercise_id: int):
+    session = database.get_session(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    session_exercise = database.get_session_exercise(session_id, session_exercise_id)
+    if session_exercise is None:
+        raise HTTPException(status_code=404, detail="Exercise not found in this session")
+
+    deleted = database.delete_session_exercise(session_exercise_id)
+    return {
+        "message": "Exercise removed from session.", 
+        "deleted_exercise": deleted
+    }
