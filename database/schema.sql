@@ -17,6 +17,8 @@ CREATE TABLE exercises (
 CREATE TABLE muscles (
     id SERIAL PRIMARY KEY,
     name TEXT UNIQUE NOT NULL
+    muscle_group TEXT NOT NULL
+        CHECK (muscle_group IN ('push', 'pull', 'legs', 'core'))
 );
 
 CREATE TABLE exercise_aliases (
