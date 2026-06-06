@@ -15,6 +15,7 @@ fatigue_score - Something I plan to play around with, is intended to represent h
 started_at and ended_at - Will later be used for analysis on a user's performance and for suggestions regarding future improvement.
 
 --- Session Exercises ---
+
 exercise_order - Will be very important for analysis and providing guidance, e.g., compound exercises should come earlier in the session as they require the greatest force output and users should be encouraged to restructure their session around that.
 
 --- Sets ---

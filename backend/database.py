@@ -202,11 +202,62 @@ def delete_session_exercise(session_exercise_id):
 
     return deleted
 
+# change order of exercises
+def reorder_exercises(session_id, session_exercise_id, new_pos):
+    # get current position of target exercise
+    cursor.execute("""
+        SELECT exercise_order
+        FROM session_exercises
+        WHERE id = %s
+            AND session_id = %s;
+    """, (session_exercise_id, session_id))
+
+    exercise = cursor.fetchone()
+    if exercise is None:
+        return None
+    current_pos = exercise["exercise_order"]
+    
+    # change nothing if already in desired position
+    if current_pos == new_pos:
+        return True
+    
+    # move target exercise out of the way
+    # if moving up the list
+    if new_pos < current_pos:
+        cursor.execute("""
+            UPDATE session_exercises
+            SET exercise_order = exercise_order + 1
+            WHERE session_id = %s
+                AND exercise_order >= %s
+                AND exercise_order < %s;
+        """, (session_id, new_pos, current_pos))
+    # if moving down the list
+    else:
+        cursor.execute("""
+            UPDATE session_exercises
+            SET exercise_order = exercise_order - 1
+            WHERE session_id = %s
+                AND exercise_order <= %s
+                AND exercise_order > %s;
+        """, (session_id, new_pos, current_pos))
+    
+    # place target into final position
+    cursor.execute("""
+        UPDATE session_exercises
+        SET exercise_order = %s
+        WHERE id = %s
+        RETURNING id, session_id, exercise_id, exercise_order;
+    """, (new_pos, session_exercise_id))
+
+    result = cursor.fetchone()
+    conn.commit()
+
+    return result
+
 # SETS
 
 # add a set of this exercise to my session
 def add_set(session_exercise_id, reps, weight, rir):
-    
     cursor.execute("""
         SELECT MAX(set_order) AS max_order
         FROM sets
