@@ -1,5 +1,9 @@
 Some notes on design decisions for the database schema.
 
+--- Users ---
+
+Not directly within the user's table, but I've added cascading deletes to clean up as necessary. If a user is deleted -> all of their workout sessions are deleted -> all exercises in those sessions are deleted -> all sets in those exercises are deleted. 
+
 --- Exercises ---
 
 canonical_name - I knew eventually there would be conflict amongst users over exercise names (e.g., Bench Press, Barbell Bench Press, Flat Bench), so I determined there needed to be one official name for any exercise and all others that referred to the same lift would be dealt with via exercise_aliases and refer to the correct exercise id. 

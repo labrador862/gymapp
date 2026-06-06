@@ -34,7 +34,7 @@ CREATE TABLE bodyweight_entries (
 
 CREATE TABLE workout_sessions (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ended_at TIMESTAMP
@@ -43,7 +43,7 @@ CREATE TABLE workout_sessions (
 
 CREATE TABLE session_exercises (
     id SERIAL PRIMARY KEY,
-    session_id INTEGER NOT NULL REFERENCES workout_sessions(id),
+    session_id INTEGER NOT NULL REFERENCES workout_sessions(id) ON DELETE CASCADE,
     exercise_id INTEGER NOT NULL REFERENCES exercises(id),
     exercise_order INTEGER NOT NULL
         CHECK (exercise_order > 0),
@@ -52,7 +52,7 @@ CREATE TABLE session_exercises (
 
 CREATE TABLE sets (
     id SERIAL PRIMARY KEY,
-    session_exercise_id INTEGER NOT NULL REFERENCES session_exercises(id),
+    session_exercise_id INTEGER NOT NULL REFERENCES session_exercises(id) ON DELETE CASCADE,
     set_order INTEGER NOT NULL CHECK (set_order > 0),
     weight NUMERIC(4,1) NOT NULL CHECK (weight > 0),
     reps INTEGER NOT NULL
