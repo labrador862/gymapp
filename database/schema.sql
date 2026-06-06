@@ -19,6 +19,8 @@ CREATE TABLE muscles (
     name TEXT UNIQUE NOT NULL
     muscle_group TEXT NOT NULL
         CHECK (muscle_group IN ('push', 'pull', 'legs', 'core'))
+    chain TEXT NOT NULL
+        CHECK (chain IN ('anterior', 'posterior', 'neutral'))
 );
 
 CREATE TABLE exercise_aliases (
