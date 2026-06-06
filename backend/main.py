@@ -20,6 +20,9 @@ class AddExerciseRequest(BaseModel):
     
 class UpdateSessionExerciseRequest(BaseModel):
     exercise_id: int
+    
+class ExerciseReorderRequest(BaseModel):
+    new_pos: int
 
 # get all users
 @app.get("/users")
@@ -124,11 +127,17 @@ def add_exercise(session_id: int, request: AddExerciseRequest):
         "session_exercise_id": session_exercise_id
     }
 
-#TODO
 # change order of exercises performed
-@app.patch("/sessions/{session_id}/reorder")
-def reorder_exercises(session_id: int):
-    return 1
+@app.patch("/sessions/{session_id}/exercises/{session_exercise_id}/position")
+def reorder_exercise(session_id: int, session_exercise_id: int, request: ExerciseReorderRequest):
+    updated = database.reorder_exercises(session_id, session_exercise_id, request.new_pos)
+    if updated is None:
+        raise HTTPException(status_code=404, detail="Exercise not found in this session")
+    
+    return {
+        "message": "Exercise reordered successfully.",
+        "updated_exercise": updated
+    }
 
 # add a set to a session
 @app.post("/sessions/{session_id}/exercises/{session_exercise_id}/sets")
