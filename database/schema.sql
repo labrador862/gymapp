@@ -3,6 +3,8 @@ CREATE TABLE users (
     username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    label_preference TEXT DEFAULT 'muscle'
+        CHECK (label_preference IN ('muscle', 'split')),
     date_of_birth DATE
 );
 
@@ -16,9 +18,9 @@ CREATE TABLE exercises (
 
 CREATE TABLE muscles (
     id SERIAL PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL
+    name TEXT UNIQUE NOT NULL,
     muscle_group TEXT NOT NULL
-        CHECK (muscle_group IN ('push', 'pull', 'legs', 'core'))
+        CHECK (muscle_group IN ('push', 'pull', 'legs', 'core')),
     chain TEXT NOT NULL
         CHECK (chain IN ('anterior', 'posterior', 'neutral'))
 );
@@ -40,6 +42,8 @@ CREATE TABLE workout_sessions (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    split_label TEXT,
+    muscle_label TEXT,
     started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ended_at TIMESTAMP
         CHECK (ended_at >= started_at)

@@ -1,6 +1,6 @@
 # gymapp
 
-A data-driven fitness tracking platform with a focus on analytics (e.g., performance over time, fatigue tracking) aiming to assist intermediate lifters and beyond by helping them become more aware of their habits and long term performance trends.
+A data-driven fitness tracking platform with a focus on analytics (e.g., performance over time, fatigue tracking) aiming to assist intermediate lifters and beyond by helping them become more aware of their habits and long term performance trends. Emphasis on hypertrophy and strength training.
 
 ## Overview
 
