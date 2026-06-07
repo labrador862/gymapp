@@ -254,3 +254,14 @@ def delete_session_exercise(session_id: int, session_exercise_id: int):
         "message": "Exercise removed from session.", 
         "deleted_exercise": deleted
     }
+    
+# get session label
+@app.get("/sessions/{session_id}/label")
+def get_session_label(session_id: int):
+    session = database.get_session(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    return database.get_session_label(session_id)
+
+    

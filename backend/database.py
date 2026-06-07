@@ -46,13 +46,16 @@ def create_workout_session(user_id):
 
 # end a currently active session
 def end_workout_session(session_id):
+    label = infer_session_label(session_id)
+    
     cursor.execute("""
         UPDATE workout_sessions
-        SET is_active = FALSE
+        SET is_active = FALSE,
+            split_label = %s
         WHERE id = %s
             AND is_active = TRUE
-        RETURNING id;
-    """, (session_id,))
+        RETURNING id, split_label;
+    """, (label, session_id))
     
     ended_session = cursor.fetchone()
     
@@ -254,6 +257,18 @@ def reorder_exercises(session_id, session_exercise_id, new_pos):
 
     return result
 
+# get session label
+def get_session_label(session_id):
+    cursor.execute("""
+        SELECT split_label
+        FROM workout_sessions
+        WHERE id = %s;
+    """, (session_id,))
+    
+    label = cursor.fetchone()
+    
+    return label
+
 # SETS
 
 # add a set of this exercise to my session
@@ -358,8 +373,51 @@ def get_exercise_name(exercise_id):
     
     return exercise_name
 
-#TODO
 # what kind of workout did the user perform?
 def infer_session_label(session_id):
-    # ex: if chest/triceps recruitment makes up 70% or more of session = push day
-    return 1
+    cursor.execute("""
+        SELECT DISTINCT se.exercise_id, m.split_category, m.chain
+        FROM session_exercises se
+        JOIN exercise_muscle_mapping emm
+            ON se.exercise_id = emm.exercise_id
+        JOIN muscles m
+            ON emm.muscle_id = m.id
+        WHERE se.session_id = %s
+    """, (session_id,))
+    
+    rows = cursor.fetchall()
+    
+    # incomplete session needs no label
+    if not rows:
+        return None
+    
+    split = {row["split_category"] for row in rows}
+    chain = {row["chain"] for row in rows}
+    
+    upper = {"push", "pull", "core"}
+    lower = {"legs"}
+    
+    is_upper = bool(split & upper)
+    is_lower = bool(split & lower)
+    
+    if is_upper and not is_lower:
+        if split <= {"push", "core"}:
+            return "Push"
+        elif split <= {"pull", "core"}:
+            return "Pull"
+        else:
+            return "Upper"
+    elif is_lower and not is_upper:
+        if chain == {"anterior"}:
+            return "Lower Anterior"
+        elif chain == {"posterior"}:
+            return "Lower Posterior"
+        else:
+            return "Lower"
+    else:
+        if chain == {"anterior"}:
+            return "Anterior"
+        elif chain == {"posterior"}:
+            return "Posterior"
+        else:
+            return "Full Body"
